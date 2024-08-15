@@ -1,7 +1,12 @@
 const ChatMessage = require('../models/ChatMessage');
+const { saveImage } = require('../helpers/saveImageFunction');
 
-const createChatMessage = async (text, userId) => {
+const createChatMessage = async (text, userId, img) => {
     const chatMessage = new ChatMessage({ text, userId });
+    if (img) {
+        await saveImage(img, chatMessage._id, "message-img");
+        chatMessage.img = `${chatMessage._id}.webp`;
+      }
     return await chatMessage.save();
 };
 
@@ -28,3 +33,5 @@ module.exports = {
     deleteChatMessage,
     getAllChatMessages 
 };
+
+/* Cambiar create message que pueda agregar imagen. */

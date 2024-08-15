@@ -2,10 +2,10 @@ const { response } = require("express");
 const chatMessageService = require('../services/chat_messageService');
 
 const createChatMessage = async (req, res = response) => {
-    const { text, userId } = req.body;
+    const { text, userId, img } = req.body;
 
     try {
-        const chatMessage = await chatMessageService.createChatMessage(text, userId);
+        const chatMessage = await chatMessageService.createChatMessage(text, userId, img);
         return res.status(201).json({ success: true, data: chatMessage });
     } catch (error) {
         console.error('Error creando el mensaje del chat:', error);

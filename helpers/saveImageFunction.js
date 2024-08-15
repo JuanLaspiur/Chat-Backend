@@ -4,7 +4,7 @@ const sharp = require('sharp');
 
 
 
-const saveImage = async (base64Data, companyID, type) => {
+const saveImage = async (base64Data, _id, type) => {
   const matches = base64Data.match(/^data:image\/([a-zA-Z]*);base64,/);
   if (!matches || matches.length !== 2) {
     throw new Error('Invalid image data');
@@ -19,7 +19,7 @@ const saveImage = async (base64Data, companyID, type) => {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const fileName = `${companyID}.webp`;
+  const fileName = `${_id}.webp`;
   const filePath = path.join(uploadDir, fileName);
 
   await sharp(imageBuffer)
@@ -41,7 +41,9 @@ const saveImage = async (base64Data, companyID, type) => {
 const getUploadDirectory = (type) => {
     switch (type) {
        case "user-img":
-        return path.join('./', 'assets', 'user-img');      
+        return path.join('./', 'assets', 'user-img');
+       case "message-img":
+        return path.join('./', 'assets','message-img');      
       default:
         throw new Error(`Unsupported image type: ${type} in helpers\saveImageFunction.js`);
       }

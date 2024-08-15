@@ -6,7 +6,6 @@ const getUsers = async (req, res = response) => {
   try {
  
  
-// Que solo sí el usuario es ADMIN_ROLE se traiga los usuarios.
     const users = await userService.getUsers();
     res.json({ data: users });
   } catch (error) {

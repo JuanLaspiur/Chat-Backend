@@ -2,12 +2,15 @@ const { Schema, model } = require('mongoose');
 
 const chatMessageSchema = new Schema({
   text:{
-    type:String
+    type:String,
   },
   userId:{
     type: Schema.Types.ObjectId,
     ref: 'User', 
     required: true
+  },
+  img: {
+    type: String,
   },
   createdAt: {
     type: Date,
@@ -16,9 +19,6 @@ const chatMessageSchema = new Schema({
  updatedAt: {
     type: Date,
     default: Date.now, 
-},
-img: {
-  type: String,
 }
 })
 
