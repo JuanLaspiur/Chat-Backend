@@ -9,11 +9,6 @@ const chatMessageSchema = new Schema({
     ref: 'User', 
     required: true
   },
-  chatId:{
-    type: Schema.Types.ObjectId,
-    ref: 'Chat', 
-    required: true
-  },
   createdAt: {
     type: Date,
     default: Date.now 
@@ -21,6 +16,9 @@ const chatMessageSchema = new Schema({
  updatedAt: {
     type: Date,
     default: Date.now, 
+},
+img: {
+  type: String,
 }
 })
 

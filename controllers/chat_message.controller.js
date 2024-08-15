@@ -2,10 +2,10 @@ const { response } = require("express");
 const chatMessageService = require('../services/chat_messageService');
 
 const createChatMessage = async (req, res = response) => {
-    const { text, userId, chatId } = req.body;
+    const { text, userId } = req.body;
 
     try {
-        const chatMessage = await chatMessageService.createChatMessage(text, userId, chatId);
+        const chatMessage = await chatMessageService.createChatMessage(text, userId);
         return res.status(201).json({ success: true, data: chatMessage });
     } catch (error) {
         console.error('Error creando el mensaje del chat:', error);
@@ -24,18 +24,6 @@ const updateChatMessage = async (req, res = response) => {
     } catch (error) {
         console.error('Error actualizando el mensaje del chat:', error);
         return res.status(500).json({ success: false, message: 'Error actualizando el mensaje del chat' });
-    }
-};
-
-const getChatMessagesByChatId = async (req, res = response) => {
-    const { chatId } = req.params;
-
-    try {
-        const chatMessages = await chatMessageService.getChatMessagesByChatId(chatId);
-        return res.status(200).json({ success: true, data: chatMessages });
-    } catch (error) {
-        console.error('Error obteniendo los mensajes del chat:', error);
-        return res.status(500).json({ success: false, message: 'Error obteniendo los mensajes del chat' });
     }
 };
 
@@ -65,10 +53,20 @@ const deleteChatMessage = async (req, res = response) => {
     }
 };
 
+const getAllChatMessages = async (req, res = response) => {
+    try {
+        const chatMessages = await chatMessageService.getAllChatMessages();
+        return res.status(200).json({ success: true, data: chatMessages });
+    } catch (error) {
+        console.error('Error obteniendo todos los mensajes del chat:', error);
+        return res.status(500).json({ success: false, message: 'Error obteniendo todos los mensajes del chat' });
+    }
+};
+
 module.exports = {
     createChatMessage,
     updateChatMessage,
-    getChatMessagesByChatId,
     getChatMessageById,
-    deleteChatMessage
+    deleteChatMessage,
+    getAllChatMessages 
 };

@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors'); // Importar cors
 const { conn } = require('./database/config');
 const Routes = require('./routes/index');
 const path = require('path');
@@ -16,17 +17,19 @@ app.use('/api/assets', express.static(path.join(__dirname, 'assets')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Configurar CORS para todas las rutas
+app.use(cors({
+  origin: '*', // Permitir cualquier origen, ajusta según sea necesario
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+}));
+
 app.use('/api', Routes);
 
 app.get('/', (req, res) => {
   res.send('¡Hola, Mundo! Bienvenido a chat_app');
 });
 
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
-});
-
-// Socket io creado pero todavia no probado el funcionamiento.
 const server = createServer(app);
 const io = new Server(server, {
   pingTimeout: 60000,
@@ -36,10 +39,7 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('Connected to socket.io');
   socket.on('setup', (userData) => {
-  //console.log(userData);
-
     socket.emit('connected');
   });
   
@@ -48,13 +48,15 @@ io.on('connection', (socket) => {
   });
 
   socket.on('new message', async (newMessageRecieved) => {
+  console.log(newMessageRecieved)
+  });
 
-  })
-  socket.emit('message received', 
-    // updatedChat.messages
-    );
-    socket.off('setup', () => {
-      //console.log('USER DISCONNECTED');
-      // socket.leave(userData._id);
-    });
+  io.emit('message received', newMessageRecieved);
+
+  socket.off('setup', () => {
+  });
+});
+
+server.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });

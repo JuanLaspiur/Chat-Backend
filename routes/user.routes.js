@@ -8,8 +8,6 @@ const {
   updateUser,
   deleteUser,
   loginUser,
-  requestPasswordReset,
-  resetPassword,
   uploadProfileImage,
 } = require('../controllers/user.controller');
 
@@ -26,8 +24,6 @@ router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
 router.post('/login', userValidations.loginUser, handleValidationErrors, loginUser);
-router.post('/password-reset/request', userValidations.requestPasswordReset, handleValidationErrors, requestPasswordReset);
-router.post('/password-reset/reset', resetPassword);
 router.post('/upload-profile-image/:id', userValidations.uploadProfileImage, handleValidationErrors, uploadProfileImage);
 
 module.exports = router;

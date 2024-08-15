@@ -2,8 +2,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { sendRecoveryEmail } = require('../helpers/mails');
-const { generateRecoveryCode } = require('../helpers/recoveryCode');
 const { saveImage } = require('../helpers/saveImageFunction');
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -89,44 +87,16 @@ const loginUser = async (body) => {
     { expiresIn: '1h' }
   );
 
-  return token;
+
+  return {
+    token,
+    user
+  };
 };
 
-const requestPasswordReset = async (body) => {
-  const { email } = body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error('No user found with that email');
-  }
 
-  const recoveryCode = generateRecoveryCode();
-  user.recoveryToken = recoveryCode;
-  await user.save();
-  await sendRecoveryEmail(email, recoveryCode);
 
-  return user;
-};
-
-const resetPassword = async (body) => {
-  const { email, token, newPassword } = body;
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error('No user found with that email');
-  }
-
-  if (user.recoveryToken !== token) {
-    throw new Error('Invalid or expired code');
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
-  user.recoveryToken = undefined;
-  await user.save();
-
-  return user;
-};
 
 const uploadProfileImage = async (id, img) => {
   const user = await User.findById(id);
@@ -156,7 +126,5 @@ module.exports = {
   updateUser,
   deleteUser,
   loginUser,
-  requestPasswordReset,
-  resetPassword,
   uploadProfileImage
 };

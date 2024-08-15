@@ -88,22 +88,26 @@ const deleteUser = async (req, res = response) => {
   }
 };
 
-const loginUser = async (req, res = response) => {
+const loginUser = async (req, res) => {
   try {
-    const token = await userService.loginUser(req.body);
+    const response = await userService.loginUser(req.body);
     res.json({
       msg: 'Login successful',
-      data: token,
+      data: {
+        token: response.token,
+        user: response.user
+      },
       success: true
     });
   } catch (error) {
-    res.status(500).json({
-      msg: 'Error logging in',
-      error,
+    res.status(401).json({
+      msg: 'Error logging in. Please check your credentials and try again.',
+      error: error.message || 'An unexpected error occurred.',
       success: false
     });
   }
 };
+
 
 const requestPasswordReset = async (req, res = response) => {
   try {
