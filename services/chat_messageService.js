@@ -1,14 +1,31 @@
 const ChatMessage = require('../models/ChatMessage');
+const User = require('../models/User')
 const { saveImage } = require('../helpers/saveImageFunction');
 
 const createChatMessage = async (text, userId, img) => {
-    const chatMessage = new ChatMessage({ text, userId });
+    const user = await User.findById(userId).select('name lastname img');
+  
+    if (!user) {
+      throw new Error('User not found');
+    }
+  
+    const chatMessage = new ChatMessage({
+      text,
+      user: {
+        name: user.name,
+        lastname: user.lastname,
+        _id: user._id,
+        img: user.img,
+      },
+    });
+  
     if (img) {
-        await saveImage(img, chatMessage._id, "message-img");
-        chatMessage.img = `${chatMessage._id}.webp`;
-      }
+      await saveImage(img, chatMessage._id, "message-img");
+      chatMessage.img = `${chatMessage._id}.webp`;
+    }
+  
     return await chatMessage.save();
-};
+  };
 
 const updateChatMessage = async (id, updateData) => {
     return await ChatMessage.findByIdAndUpdate(id, updateData, { new: true });

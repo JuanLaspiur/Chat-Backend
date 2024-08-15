@@ -4,9 +4,7 @@ const userService = require('../services/userService');
 
 const getUsers = async (req, res = response) => {
   try {
- 
- 
-    const users = await userService.getUsers();
+     const users = await userService.getUsers();
     res.json({ data: users });
   } catch (error) {
     res.status(500).json({

@@ -1,11 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
-const cors = require('cors'); // Importar cors
+const cors = require('cors');
 const { conn } = require('./database/config');
 const Routes = require('./routes/index');
 const path = require('path');
 const { Server } = require('socket.io'); 
-const { createServer } = require('node:http'); 
+const { createServer } = require('node:http');
+const ChatMessage = require('./models/ChatMessage');
+const {createChatMessage } = require('./services/chat_messageService')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,11 +19,10 @@ app.use('/api/assets', express.static(path.join(__dirname, 'assets')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configurar CORS para todas las rutas
 app.use(cors({
-  origin: '*', // Permitir cualquier origen, ajusta según sea necesario
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
 
 app.use('/api', Routes);
@@ -32,28 +33,39 @@ app.get('/', (req, res) => {
 
 const server = createServer(app);
 const io = new Server(server, {
-  pingTimeout: 60000,
   cors: {
     origin: '*',
   },
 });
 
+let connectedUsers = [];
+
 io.on('connection', (socket) => {
-  socket.on('setup', (userData) => {
-    socket.emit('connected');
-  });
-  
-  socket.on('join chat', (room) => {
-    socket.join(room);
-  });
-
-  socket.on('new message', async (newMessageRecieved) => {
-  console.log(newMessageRecieved)
+  socket.on('user connected', (user) => {
+    console.log(`Usuario ${user.name} ${user.lastname}`);
+    
+    const userExists = connectedUsers.some(connectedUser => connectedUser.user._id === user._id);    
+    if (!userExists) {
+      connectedUsers.push({ socketId: socket.id, user });
+      io.emit('update user list', connectedUsers);
+    }
   });
 
-  io.emit('message received', newMessageRecieved);
+  socket.on('new message', async (newMessageReceived) => {
+    try {
+      console.log('Llegó desde el socket: \n ' + JSON.stringify(newMessageReceived));
+      const savedMessage = await createChatMessage(newMessageReceived.text, newMessageReceived.userId);
 
-  socket.off('setup', () => {
+      io.emit('message received', savedMessage);
+    } catch (error) {
+      console.error("Error saving message:", error);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    connectedUsers = connectedUsers.filter(connectedUser => connectedUser.socketId !== socket.id);
+    io.emit('update user list', connectedUsers);
+    console.log('Usuario desconectado');
   });
 });
 

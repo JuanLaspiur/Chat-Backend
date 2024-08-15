@@ -4,10 +4,14 @@ const chatMessageSchema = new Schema({
   text:{
     type:String,
   },
-  userId:{
-    type: Schema.Types.ObjectId,
-    ref: 'User', 
-    required: true
+  user: {
+    type: {
+      name: String,
+      lastname: String,
+      _id: Schema.Types.ObjectId,
+      img: String,
+    },
+    required: true,
   },
   img: {
     type: String,
